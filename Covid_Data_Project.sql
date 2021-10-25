@@ -74,28 +74,26 @@ Location nvarchar(255),
 Date datetime,
 Population numeric,
 New_vaccinations numeric,
-RollingPeopleVaccinated numeric
+Total_Vaccinations numeric
 )
 
 Insert into #PercentPopulationVaccinated
 Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations
-, SUM(CONVERT(bigint,vac.new_vaccinations)) OVER (Partition by dea.Location Order by dea.location, dea.Date) as RollingPeopleVaccinated
---, (RollingPeopleVaccinated/population)*100
+, SUM(CONVERT(bigint,vac.new_vaccinations)) OVER (Partition by dea.Location Order by dea.location, dea.Date) as 'Total_Vaccinations'
 From covid_deaths dea
 Join covid_vaccinations vac
 	On dea.location = vac.location
 	and dea.date = vac.date
 
 
-Select *, (RollingPeopleVaccinated/Population)*100
+Select *, (Total_Vaccinations/Population)*100
 From #PercentPopulationVaccinated
 
 -- Creating View to store data for later visualizations
 
 Create View PercentPopulationVaccinated as
 Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations
-, SUM(CONVERT(int,vac.new_vaccinations)) OVER (Partition by dea.Location Order by dea.location, dea.Date) as RollingPeopleVaccinated
---, (RollingPeopleVaccinated/population)*100
+, SUM(CONVERT(int,vac.new_vaccinations)) OVER (Partition by dea.Location Order by dea.location, dea.Date) as 'Total_Vaccinations'
 From covid_deaths dea
 Join covid_vaccinations vac
 	On dea.location = vac.location
